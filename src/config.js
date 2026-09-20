@@ -3,18 +3,26 @@ import { Regex } from '@companion-module/base'
 export const ConfigFields = [
 	{
 		type: 'static-text',
-		id:   'info',
+		id: 'info',
 		width: 12,
 		label: 'Information',
-		value: 'Control an ATEN HDMI Matrix via telnet. Ensure account details are correct and telnet is enabled on Web UI'
+		value: 'Control an ATEN HDMI Matrix via telnet. Ensure account details are correct and telnet is enabled on Web UI',
 	},
 	{
 		type: 'textinput',
-		id:   'host',
+		id: 'host',
 		label: 'Target IP',
 		default: '',
 		width: 6,
-		regex: Regex.IP
+		regex: Regex.IP,
+	},
+	{
+		type: 'textinput',
+		id: 'port',
+		label: 'Target Port',
+		default: '23',
+		width: 6,
+		regex: Regex.PORT,
 	},
 	{
 		type: 'textinput',
@@ -28,7 +36,7 @@ export const ConfigFields = [
 		id: 'pass',
 		label: 'Password',
 		width: 6,
-		default: 'password'
+		default: 'password',
 	},
 	{
 		type: 'dropdown',
@@ -37,9 +45,9 @@ export const ConfigFields = [
 		width: 6,
 		default: '8',
 		choices: [
-			{ id: '4',  label: 'VM0404HA (4x4)'   },
-			{ id: '8',  label: 'VM0808HA (8x8)'   },
-			{ id: '16', label: 'VM51616H (16x16)' }
-		]
-	}
+			{ id: '4', label: 'VM0404HA (4x4)' },
+			{ id: '8', label: 'VM0808HA (8x8)' },
+			{ id: '16', label: 'VM51616H (16x16)' },
+		],
+	},
 ]

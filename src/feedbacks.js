@@ -1,6 +1,8 @@
 import { combineRgb } from '@companion-module/base'
 
 export function getFeedbacks(instance) {
+	let maxIO = parseInt(instance.config.device, 10)
+
 	const feedbackDefinitions = {
 		output_bg: {
 			name: 'Crosspoint set',
@@ -8,7 +10,7 @@ export function getFeedbacks(instance) {
 			description: 'Triggers if the input specified is in use by the output specified.',
 			defaultStyle: {
 				color: combineRgb(255, 255, 255),
-				bgcolor: combineRgb(255, 0, 0)
+				bgcolor: combineRgb(255, 0, 0),
 			},
 			options: [
 				{
@@ -17,25 +19,21 @@ export function getFeedbacks(instance) {
 					id: 'input',
 					default: 1,
 					min: 1,
-					max: instance.config.device
-				}, 
+					max: maxIO,
+				},
 				{
 					type: 'number',
 					label: 'Output',
 					id: 'output',
 					default: 1,
 					min: 1,
-					max: instance.config.device
-				}
+					max: maxIO,
+				},
 			],
 			callback: (feedback) => {
-				if (instance.outputs[feedback.options.output] == feedback.options.input) {
-					return true
-				} else {
-					return false
-				}
-			}
-		}
+				return instance.outputs[feedback.options.output] === feedback.options.input
+			},
+		},
 	}
 	return feedbackDefinitions
 }
