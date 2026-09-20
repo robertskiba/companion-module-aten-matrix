@@ -41,13 +41,20 @@ export const ConfigFields = [
 	{
 		type: 'dropdown',
 		id: 'device',
-		label: 'Device Type',
+		label: 'Matrix Size',
 		width: 6,
-		default: '8',
+		default: '8x8',
 		choices: [
-			{ id: '4', label: 'VM0404HA (4x4)' },
-			{ id: '8', label: 'VM0808HA (8x8)' },
-			{ id: '16', label: 'VM51616H (16x16)' },
+			{ id: '2x2', label: '2 IN / 2 OUT Matrix (like VM0202H, VM0202HB)' },
+			{
+				id: '4x4',
+				label: '4 IN / 4 OUT Matrix (like VM0404H, VM0404HA, VM0404HB, VM3404H, VM5404H, VM5404HA, VM6404H, VM6404HB)',
+			},
+			{ id: '8x8', label: '8 IN / 8 OUT Matrix (like VM0808H, VM0808HA, VM0808HB, VM5808H, VM5808HA)' },
+			{ id: '8x9', label: '8 IN / 9 OUT Matrix (like VM6809H)' },
+			{ id: '9x9', label: '9 IN / 9 OUT Matrix (like VM3909H)' },
+			{ id: '16x16', label: '16 IN / 16 OUT Matrix (like VM51616H, VM1600, VM1600A)' },
+			{ id: '32x32', label: '32 IN / 32 OUT Matrix (like VM3200, VM3250)' },
 		],
 	},
 ]
