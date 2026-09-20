@@ -1,6 +1,7 @@
 import { InstanceBase, InstanceStatus, TelnetHelper } from '@companion-module/base'
 import { getActions } from './actions.js'
 import { getFeedbacks } from './feedbacks.js'
+import { getPresetDefinitions } from './presets.js'
 import { getVariableDefinitions, getVariableValues } from './variables.js'
 import { ConfigFields } from './config.js'
 import { UpgradeScripts } from './upgrades.js'
@@ -30,6 +31,7 @@ export default class AtenMatrixInstance extends InstanceBase {
 		this.setActionDefinitions(getActions(this))
 		this.initFeedbacks()
 		this.initVariables()
+		this.initPresets()
 
 		await this.configUpdated(config)
 	}
@@ -267,6 +269,12 @@ export default class AtenMatrixInstance extends InstanceBase {
 		this.setVariableValues(getVariableValues(this))
 	}
 
+	// Define presets
+	initPresets() {
+		const { sections, presets } = getPresetDefinitions(this)
+		this.setPresetDefinitions(sections, presets)
+	}
+
 	// On Config changes apply new config
 	async configUpdated(config) {
 		var resetConnection = false
@@ -281,6 +289,7 @@ export default class AtenMatrixInstance extends InstanceBase {
 		this.setActionDefinitions(getActions(this))
 		this.initFeedbacks()
 		this.initVariables()
+		this.initPresets()
 
 		if (resetConnection === true || this.socket === undefined) {
 			this.initTCP()

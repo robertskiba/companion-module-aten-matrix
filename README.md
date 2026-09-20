@@ -69,6 +69,13 @@ Telnet access has to be enabled in the matrix's web UI before the module can con
 - `source_O<n>` – input currently routed to output `n`, updated live on every switch and re-read every 15 seconds
 - `last_preset` – last preset recalled via Companion
 - `firmware_version` – software version reported by the matrix
+- `selected_source` / `selected_destination` – input/output currently picked for a take
+
+**Presets**
+
+Ready-made buttons for the actions and feedbacks above: one "Select Input"/"Select Output" button per port for the
+take workflow (output buttons also show their currently routed input), a "Take" button showing the pending
+selection, one button per matrix preset/profile number, and a "Connected" status button.
 
 Buttons created with the previous version of this module (the `Set Crosspoint`, `Load Profile` and `Crosspoint set`
 definitions) are migrated to the new actions and feedbacks automatically.

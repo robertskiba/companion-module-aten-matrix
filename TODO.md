@@ -27,17 +27,3 @@ write-up) turned up in a search:
 Needs: real device access (or someone willing to capture their browser's network tab while
 using the web UI) to confirm login mechanism, the Telnet-toggle endpoint, and whether
 anything WebSocket-based exists at all before any of this can be implemented.
-
-## Companion button presets
-
-Auto-generate ready-made button presets (`setPresetDefinitions`) so the take-workflow
-actions/feedbacks are usable out of the box instead of requiring manual button setup:
-
-- one "Select Input N" button per input (wired to `selectSource` + `sourceSelected` feedback)
-- one "Select Output N" button per output (wired to `selectDestination` + `destinationSelected`)
-- a "Take" button (`takeSalvo`)
-- optionally one preset per output showing the routed input via the `route`/`source_O<n>`
-  variable, and one per matrix preset/profile number (`preset` action)
-
-Straightforward to build (no protocol/hardware unknowns involved, unlike the item above) —
-just needs someone to sit down and design the button layout/styling.

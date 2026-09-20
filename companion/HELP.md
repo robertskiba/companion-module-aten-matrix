@@ -33,3 +33,13 @@ And maybe others using same control protocol.
 - `source_O<n>` – number of the input currently routed to output `n`, updated live whenever the matrix reports a switch and re-read every 15 seconds
 - `last_preset` – number of the last preset recalled via Companion
 - `firmware_version` – software version reported by the matrix
+- `selected_source` / `selected_destination` – input/output currently picked for a take, via the "Select source/destination for take" actions
+
+## Available Presets
+
+Ready-made buttons, grouped into sections:
+
+- **Select Input** / **Select Output** – one button per port for the two-step take workflow, highlighted while selected; the output buttons also show the input currently routed to them
+- **Take** – routes the selected source to the selected destination, and shows the pending selection
+- **Presets** – one button per matrix preset/profile number, highlighted while it's the last one recalled via Companion
+- **Connected** – shows the module's Telnet connection state

@@ -42,6 +42,7 @@ export function getActions(instance) {
 			callback: async (action) => {
 				instance.state.selectedSource = action.options.port
 				instance.checkFeedbacks('sourceSelected', 'route')
+				instance.updateVariableValues()
 			},
 		},
 		selectDestination: {
@@ -58,6 +59,7 @@ export function getActions(instance) {
 			callback: async (action) => {
 				instance.state.selectedDestination = action.options.port
 				instance.checkFeedbacks('destinationSelected', 'route')
+				instance.updateVariableValues()
 			},
 		},
 		takeSalvo: {
