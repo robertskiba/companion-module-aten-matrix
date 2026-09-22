@@ -1,9 +1,7 @@
 import { combineRgb } from '@companion-module/base'
-import { getDeviceSize } from './utils.js'
+import { inputField, outputField, presetField } from './utils.js'
 
 export function getFeedbacks(instance) {
-	let { inputs, outputs } = getDeviceSize(instance.config)
-
 	return {
 		route: {
 			name: 'Route',
@@ -13,31 +11,10 @@ export function getFeedbacks(instance) {
 				color: combineRgb(0, 0, 0),
 				bgcolor: combineRgb(255, 0, 0),
 			},
-			options: [
-				{
-					type: 'number',
-					label: 'Input',
-					id: 'input',
-					tooltip: '0 = selected',
-					default: 1,
-					min: 0,
-					max: inputs,
-				},
-				{
-					type: 'number',
-					label: 'Output',
-					id: 'output',
-					tooltip: '0 = selected',
-					default: 1,
-					min: 0,
-					max: outputs,
-				},
-			],
+			options: [inputField(instance, { withSelected: true }), outputField(instance, { withSelected: true })],
 			callback: (feedback) => {
-				let input = feedback.options.input
-				let output = feedback.options.output
-				if (input === 0) input = instance.state.selectedSource
-				if (output === 0) output = instance.state.selectedDestination
+				const input = instance.resolveInput(feedback.options.input)
+				const output = instance.resolveOutput(feedback.options.output)
 				if (input === undefined || output === undefined) return false
 
 				return instance.outputs[output] === input
@@ -51,18 +28,9 @@ export function getFeedbacks(instance) {
 				color: combineRgb(0, 0, 0),
 				bgcolor: combineRgb(0, 255, 0),
 			},
-			options: [
-				{
-					type: 'number',
-					label: 'Input',
-					id: 'port',
-					default: 1,
-					min: 1,
-					max: inputs,
-				},
-			],
+			options: [inputField(instance, { id: 'port' })],
 			callback: (feedback) => {
-				return instance.state.selectedSource === feedback.options.port
+				return instance.state.selectedSource === Number(feedback.options.port)
 			},
 		},
 		destinationSelected: {
@@ -73,18 +41,9 @@ export function getFeedbacks(instance) {
 				color: combineRgb(0, 0, 0),
 				bgcolor: combineRgb(0, 255, 0),
 			},
-			options: [
-				{
-					type: 'number',
-					label: 'Output',
-					id: 'port',
-					default: 1,
-					min: 1,
-					max: outputs,
-				},
-			],
+			options: [outputField(instance, { id: 'port' })],
 			callback: (feedback) => {
-				return instance.state.selectedDestination === feedback.options.port
+				return instance.state.selectedDestination === Number(feedback.options.port)
 			},
 		},
 		presetRecalled: {
@@ -96,18 +55,9 @@ export function getFeedbacks(instance) {
 				color: combineRgb(255, 255, 255),
 				bgcolor: combineRgb(0, 102, 204),
 			},
-			options: [
-				{
-					type: 'number',
-					label: 'Preset',
-					id: 'preset',
-					default: 1,
-					min: 1,
-					max: inputs + outputs,
-				},
-			],
+			options: [presetField(instance)],
 			callback: (feedback) => {
-				return instance.lastPreset === feedback.options.preset
+				return instance.lastPreset === Number(feedback.options.preset)
 			},
 		},
 		connected: {

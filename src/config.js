@@ -1,60 +1,95 @@
 import { Regex } from '@companion-module/base'
+import { getDeviceSize, getMatrixSizeChoices, getSizeIdForModel } from './utils.js'
 
-export const ConfigFields = [
-	{
-		type: 'static-text',
-		id: 'info',
-		width: 12,
-		label: 'Information',
-		value: 'Control an ATEN HDMI Matrix via telnet. Ensure account details are correct and telnet is enabled on Web UI',
-	},
-	{
-		type: 'textinput',
-		id: 'host',
-		label: 'Target IP',
-		default: '',
-		width: 6,
-		regex: Regex.IP,
-	},
-	{
-		type: 'textinput',
-		id: 'port',
-		label: 'Target Port',
-		default: '23',
-		width: 6,
-		regex: Regex.PORT,
-	},
-	{
-		type: 'textinput',
-		id: 'user',
-		label: 'Username',
-		width: 6,
-		default: 'administrator',
-	},
-	{
-		type: 'textinput',
-		id: 'pass',
-		label: 'Password',
-		width: 6,
-		default: 'password',
-	},
-	{
-		type: 'dropdown',
-		id: 'device',
-		label: 'Matrix Size',
-		width: 6,
-		default: '8x8',
-		choices: [
-			{ id: '2x2', label: '2 IN / 2 OUT Matrix (like VM0202H, VM0202HB)' },
+// Takes the model the matrix reported on its last login, if it has been seen, so the
+// config can show what it is actually talking to.
+export function getConfigFields(detectedModel) {
+	return [
+		{
+			type: 'static-text',
+			id: 'info',
+			width: 12,
+			label: 'Information',
+			value:
+				'Control an ATEN HDMI Matrix via telnet. Ensure account details are correct and telnet is enabled on Web UI',
+		},
+		{
+			type: 'textinput',
+			id: 'host',
+			label: 'Target IP',
+			default: '',
+			width: 6,
+			regex: Regex.IP,
+		},
+		{
+			type: 'textinput',
+			id: 'user',
+			label: 'Username',
+			width: 6,
+			default: 'administrator',
+		},
+		{
+			type: 'textinput',
+			id: 'pass',
+			label: 'Password',
+			width: 6,
+			default: 'password',
+		},
+		{
+			type: 'checkbox',
+			id: 'autoSetPassword',
+			label: 'Automatically change to selected password if factory default password is active',
+			width: 12,
+			default: false,
+			description:
+				'A factory-fresh or factory-reset matrix still uses its default password and forces a change on the first ' +
+				'login. With this enabled, the module logs in with the default and sets the password above on the device.',
+		},
+		...matrixSizeFields(detectedModel),
+	]
+}
+
+// The matrix reports its own model on login, so the size only has to be asked for when that
+// model is one this module doesn't know. Until then there is nothing useful to choose from.
+function matrixSizeFields(detectedModel) {
+	const knownSize = detectedModel ? getSizeIdForModel(detectedModel) : undefined
+
+	if (knownSize !== undefined) {
+		const { inputs, outputs } = getDeviceSize({ device: knownSize })
+		return [
 			{
-				id: '4x4',
-				label: '4 IN / 4 OUT Matrix (like VM0404H, VM0404HA, VM0404HB, VM3404H, VM5404H, VM5404HA, VM6404H, VM6404HB)',
+				type: 'static-text',
+				id: 'detectedModel',
+				width: 12,
+				label: 'Matrix model',
+				value: `Detected <b>${detectedModel}</b>, so this is treated as a ${inputs} in / ${outputs} out matrix.`,
 			},
-			{ id: '8x8', label: '8 IN / 8 OUT Matrix (like VM0808H, VM0808HA, VM0808HB, VM5808H, VM5808HA)' },
-			{ id: '8x9', label: '8 IN / 9 OUT Matrix (like VM6809H)' },
-			{ id: '9x9', label: '9 IN / 9 OUT Matrix (like VM3909H)' },
-			{ id: '16x16', label: '16 IN / 16 OUT Matrix (like VM51616H, VM1600, VM1600A)' },
-			{ id: '32x32', label: '32 IN / 32 OUT Matrix (like VM3200, VM3250)' },
-		],
-	},
-]
+		]
+	}
+
+	return [
+		{
+			type: 'static-text',
+			id: 'detectedModel',
+			width: 12,
+			label: 'Matrix model',
+			value: detectedModel
+				? `The matrix reports <b>${detectedModel}</b>, which this module does not know yet. Pick the entry ` +
+					'below whose number of inputs and outputs matches it.'
+				: 'Not known yet - the matrix reports its model when the module logs in, and the size is taken from ' +
+					'it. Only if the model is unknown does a size have to be picked here.',
+		},
+		...(detectedModel
+			? [
+					{
+						type: 'dropdown',
+						id: 'device',
+						label: 'Matrix Size',
+						width: 6,
+						default: '8x8',
+						choices: getMatrixSizeChoices(),
+					},
+				]
+			: []),
+	]
+}
