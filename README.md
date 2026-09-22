@@ -44,8 +44,8 @@ different management architecture, so it's unconfirmed whether they speak the sa
 | Password     | Telnet login password (default `password`)                                        |
 | _(checkbox)_ | "Automatically change to selected password if factory default password is active" |
 
-Telnet access has to be enabled in the matrix's web UI before the module can connect. The port is always 23, since
-the matrix offers no way to change it.
+Nothing has to be enabled on the matrix first: Telnet is always on, and always on port 23, which it offers no way
+to change.
 
 ## Port and preset names
 
