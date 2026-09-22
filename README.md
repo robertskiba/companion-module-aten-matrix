@@ -60,8 +60,8 @@ slots that hold a profile get a variable and a ready-made button; an empty slot 
 under the matrix's placeholder name "Untitled".
 
 Since the matrix never announces a rename, there is a **Refresh port and preset names** action for names changed
-elsewhere,
-and a **Rename port** action that renames a port on the device and reads the names back to confirm it took.
+elsewhere, and a **Rename port** action that renames a port on the device and reads the names back to confirm it
+took.
 
 Letters (umlauts included), digits, spaces and ``! # $ % - . ^ _ ` { } ~`` are accepted; the characters
 `" & ' ( ) * + , / : ; < = > ? @ [ \ ] |` are dropped, because the matrix silently discards a whole submission
@@ -87,7 +87,7 @@ stops retrying entirely once a login was rejected - fix the config and save it t
 
 **Actions**
 
-- **XP:Switch** – route an input to an output directly
+- **Route Input directly to Output** – route an input to an output in one step, without the take workflow
 - **Select source for take** / **Select destination for take** / **Take** – two-step routing: pick an input and an
   output on separate buttons, then press a Take button to route them
 - **Recall Preset** / **Save Preset** – recall or store one of the matrix's connection profiles

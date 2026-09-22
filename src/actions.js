@@ -4,14 +4,14 @@ import { MAX_NAME_LENGTH, sanitizeName } from './http.js'
 export function getActions(instance) {
 	return {
 		xpt: {
-			name: 'XP:Switch - Select video input for output',
+			name: 'Route Input directly to Output',
 			options: [inputField(instance, { withSelected: true }), outputField(instance, { withSelected: true })],
 			callback: async (action) => {
 				const input = instance.resolveInput(action.options.input)
 				const output = instance.resolveOutput(action.options.output)
 
 				if (input === undefined || output === undefined) {
-					instance.log('warn', 'XP:Switch: no source and/or destination selected')
+					instance.log('warn', 'Route Input directly to Output: no source and/or destination selected')
 					return
 				}
 				instance.route(input, output)

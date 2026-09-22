@@ -29,7 +29,7 @@ save it to retry.
 
 ## Available Actions
 
-- **XP:Switch** – route an input to an output directly
+- **Route Input directly to Output** – route an input to an output in one step, without the take workflow
 - **Select source for take** / **Select destination for take** / **Take** – two-step routing: pick an input and an output on separate buttons, then press a Take button to route them
 - **Recall Preset** / **Save Preset** – recall or store one of the matrix's connection profiles
 - **Refresh routing status** – re-read the routing of every output from the matrix
@@ -86,5 +86,5 @@ Ready-made buttons, grouped into sections:
 - **Select Output** – one button per output, showing its number and name, green while it is the selected destination,
   with a yellow band naming the input that currently feeds it
 - **Take** – spells out the pending route ("IN3 (Kamera) to OUT5 (Regie)") and makes it when pressed
-- **Presets** – one button per matrix preset/profile number, highlighted while it's the last one recalled via Companion
+- **Presets** – one button per profile the matrix actually has saved, showing its number and name, highlighted while it's the last one recalled via Companion
 - **Connected** – shows the module's Telnet connection state
