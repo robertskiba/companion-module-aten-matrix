@@ -5,26 +5,24 @@ Not committed to any of these — just tracked here for later investigation.
 ## More of the web interface
 
 The web interface turned out to be a plain HTML/AJAX application, and the module already
-uses it for the port names (see `src/http.js`): POST the credentials to
+uses it for the port and profile names (see `src/http.js`): POST the credentials to
 `/login/checkuser.asp`, read the session id out of the response body, then call the same
 endpoints the web pages use. Worth picking up from there:
 
-1. **Auto-enable Telnet.** Telnet has to be switched on by hand in the web interface before
-   the module can connect at all (it is off by default on some firmware versions). The
-   Network settings page has that toggle, so the module could offer to flip it on connect.
-   The endpoint still has to be identified - the page's script is `lib/*.js`, the data comes
-   from an XML file under `data/`, and saving goes to an `.asp` endpoint, same as the port
-   names.
+1. **Save a profile under a name.** The matrix has no rename: posting a name to
+   `/profile_list2.asp` saves a profile into the slot, which was confirmed by aiming it at
+   an empty slot and watching one appear. So the sensible action is "Save Preset" with a
+   slot and a name - store the current routing over Telnet (`SV nn`), then set the name.
+   Still to confirm: whether that POST writes the same routing `SV` does, or something of
+   its own. `/profile_list.asp` with `R1_DeleteProfile` empties a slot again.
 
 2. **Controlling the matrix over HTTP instead of Telnet.** There is no WebSocket: the web
    pages poll XML files (e.g. `lib/video_wall.xml`) and post to `.asp` endpoints. That is a
    workable transport, but polling XML is not obviously better than the Telnet session,
-   which already pushes switch notifications. Interesting mainly as a fallback for devices
-   where Telnet cannot be enabled.
+   which already pushes switch notifications.
 
-3. **Other things the web interface knows.** `lib/video_wall.xml` also carries the profile
-   names (`R1_ProfileList`), mute state and per-port capabilities - the profile names in
-   particular would make the preset dropdowns a lot more readable than "Preset 7".
+3. **Other things the web interface knows.** `lib/video_wall.xml` also carries the mute
+   state and the per-port capabilities, neither of which the module reads yet.
 
 ## Use "read" for polling
 
