@@ -2,8 +2,6 @@
 
 ## 3.0.0
 
-Everything below is relative to 2.0.2, the last released version.
-
 ### Breaking
 
 - Rewritten for `@companion-module/base` v2, so the module needs a Companion version that supports it.
@@ -44,11 +42,6 @@ Everything below is relative to 2.0.2, the last released version.
   lockout ("Login locked. Please wait for 5 minutes").
 - A rejected username or password stops the retries rather than hammering the matrix until it locks the account
   out.
-- The reply to `RO` is parsed the way the hardware actually sends it, ATEN's manual documents it the other way
-  round. One input feeding several outputs is handled.
-- Lines split on `\r\n` no longer lose a character, and lines the matrix is known to send are no longer logged
-  as unrecognized.
-- Asymmetric matrices (e.g. the 8x9 VM6809H) are no longer treated as square.
 
 ## 2.0.2 and earlier
 
