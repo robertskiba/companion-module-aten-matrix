@@ -4,10 +4,13 @@ Not committed to any of these — just tracked here for later investigation.
 
 ## More of what the matrix can do
 
-Four things the matrix offers that the module does not touch yet. All of them need the
-Telnet command spelling confirmed against real hardware first: ATEN's manual has been
-wrong before (it documents the reply to `RO` the other way round from what a VM0808HB
-actually sends), so the command list is a starting point, not a source.
+Four things the matrix offers that the module does not touch yet. None of them can be set
+over Telnet: asked for its command list with `H`, a VM0808HB answers with exactly
+
+    H, IP, LO nn, PW, RI nn, RO nn, SB nn, SS nn,mm, SV nn, TI nn, VR, Ctrl-Q
+
+plus the undocumented `read` and `reset`. So all four have to go through the web interface,
+the way the port names already do.
 
 1. **Mute and Mute All.** `read` reports `audio on` or `audio off` per output, so the state
    can be polled and turned into a feedback and a variable without any new plumbing. The web
@@ -88,29 +91,34 @@ exists for exactly this, and the affected actions could warn instead of failing 
 
 ## Detect whether an input has a signal
 
-Asked for so Companion can react to a source failing or coming back. Not solved yet, and
-the device was unreachable when this was written, so the notes below are what the captures
-already on hand say.
+Wanted so Companion could react to a source failing or coming back. **A VM0808HB does not
+report this at all**, established with a source on input 8 and every other input empty:
 
-Ruled out so far:
+- Its own command list (`H`) holds nothing for it, and `RI nn` - the obvious candidate -
+  turns out to be the inverse of `RO`: it reads which output an input is routed to, and
+  answered `No port is connected to Input Port 08` for the very input that had a signal.
+- `read` reports `video on audio on` per output whether that output carries a live input or
+  a dead one; those are the blank and mute settings.
+- Every status field the web interface has was captured with and without a source and came
+  back identical: `HDCPinput`, `HDCPoutput`, `DisplayHDCP`, `RXHDCPSupport`,
+  `DISPLAY_IDSTR`, all four Read Status groups and the OSD/CEC strings. The Read Status
+  page's "Video Connection" group is the routing table, not a signal state.
+- `RXConnectStatus` is a per-port mask the web interface tests exactly the way we would
+  want, but "RX" means an HDBaseT receiver; it is empty on this model, whose
+  `LiveView_Suppport` is `0`.
 
-- `read` reports routing and the blank/mute state per output (`o01 i01 video on audio on`),
-  the EDID mode, the firmware and the network settings. Nothing about the inputs.
-- `RXConnectStatus` in `lib/video_wall.xml` is a per-port mask the web interface tests with
-  `videoObject.RX.charAt(port - 1) === '1'`, which reads exactly like what is wanted - but
-  "RX" is an HDBaseT receiver, not an HDMI source. It is empty on a VM0808HB, whose
-  `LiveView_Suppport` is `0`, and every use of it in the web interface is behind that flag.
+Worth revisiting only on a model that advertises `LiveView_Suppport` or is HDBaseT-based,
+where `RXConnectStatus` may carry something real.
 
-The open lead is the web interface's **Read Status** page: `data/mainpage/mainpage.xml`
-reports `Read_Status_Support` as `1` on the VM0808HB, and `lib/mainpage.js` initialises it
-with `readStatus.reStatusXML()` / `readStatus.refreshStatusData()`. The script defining
-`readStatus` is not among the files the main page pulls in, so it belongs to the settings
-page and still has to be fetched, along with whatever XML it reads.
+If it ever becomes available, the design to build is:
 
-Also worth a try over Telnet, since a command not in the manual has turned up before: the
-matrix answers an unknown command with `Command incorrect`, so probing costs nothing.
-
-One design note for whoever picks this up: signal loss is only useful if it is noticed
-quickly, so this wants polling every few seconds. The HTTP helper logs in and out around
-every fetch, which is fine for names but far too heavy for that. It would need a session
-held open and kept alive the way the web interface does, or - much better - a Telnet route.
+- a variable and a feedback for the immediate state, polled as often as the transport allows
+- a second variable and feedback that only turn true once the signal has been present
+  continuously for a configurable time, with a config field of roughly 1 to 10 seconds
+- the stable one should drop to false immediately on loss rather than waiting out the timer:
+  an automation wants to hear about a failure at once, and be cautious only about declaring
+  recovery
+- it should also start false after a restart, so reloading the module does not fire
+  everyone's "signal is back" automations
+- the timer can never be finer than the poll interval, so the poll has to be at least as
+  fast as the shortest timeout the config offers
