@@ -89,10 +89,12 @@ and watch the debug log - unrecognized lines are logged, so whatever the matrix 
 permissions will show up there. Once detectable, `InstanceStatus.InsufficientPermissions`
 exists for exactly this, and the affected actions could warn instead of failing silently.
 
-## Detect whether an input has a signal
+## Detect whether an input has a signal - settled, not possible
 
 Wanted so Companion could react to a source failing or coming back. **A VM0808HB does not
-report this at all**, established with a source on input 8 and every other input empty:
+report this at all.** Established with a source on one input and every other input empty,
+and not worth revisiting on this hardware - the front panel shows nothing either, so the
+device most likely never determines it:
 
 - Its own command list (`H`) holds nothing for it, and `RI nn` - the obvious candidate -
   turns out to be the inverse of `RO`: it reads which output an input is routed to, and
@@ -120,7 +122,12 @@ report this at all**, established with a source on input 8 and every other input
   answers "Signal: On/Off", but `read i07` and eight other spellings are all rejected
   with `Command incorrect`; that form belongs to another series.
 
-Worth revisiting only on a model that advertises `LiveView_Suppport` or is HDBaseT-based,
+What settles it is not the missing command but the missing display: the web interface reads
+the sink side happily - `TxConnectStatus` and `DISPLAY_IDSTR` both track a monitor - and has
+nothing at all for the source side. Neither does the front panel. Had the hardware known,
+ATEN would have shown it.
+
+Worth a fresh look only on a model that advertises `LiveView_Suppport` or is HDBaseT-based,
 where `RXConnectStatus` may carry something real.
 
 If it ever becomes available, the design to build is:
