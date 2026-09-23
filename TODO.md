@@ -85,3 +85,32 @@ Easiest way to find out: create a Basic User on the device, log the module in as
 and watch the debug log - unrecognized lines are logged, so whatever the matrix says about
 permissions will show up there. Once detectable, `InstanceStatus.InsufficientPermissions`
 exists for exactly this, and the affected actions could warn instead of failing silently.
+
+## Detect whether an input has a signal
+
+Asked for so Companion can react to a source failing or coming back. Not solved yet, and
+the device was unreachable when this was written, so the notes below are what the captures
+already on hand say.
+
+Ruled out so far:
+
+- `read` reports routing and the blank/mute state per output (`o01 i01 video on audio on`),
+  the EDID mode, the firmware and the network settings. Nothing about the inputs.
+- `RXConnectStatus` in `lib/video_wall.xml` is a per-port mask the web interface tests with
+  `videoObject.RX.charAt(port - 1) === '1'`, which reads exactly like what is wanted - but
+  "RX" is an HDBaseT receiver, not an HDMI source. It is empty on a VM0808HB, whose
+  `LiveView_Suppport` is `0`, and every use of it in the web interface is behind that flag.
+
+The open lead is the web interface's **Read Status** page: `data/mainpage/mainpage.xml`
+reports `Read_Status_Support` as `1` on the VM0808HB, and `lib/mainpage.js` initialises it
+with `readStatus.reStatusXML()` / `readStatus.refreshStatusData()`. The script defining
+`readStatus` is not among the files the main page pulls in, so it belongs to the settings
+page and still has to be fetched, along with whatever XML it reads.
+
+Also worth a try over Telnet, since a command not in the manual has turned up before: the
+matrix answers an unknown command with `Command incorrect`, so probing costs nothing.
+
+One design note for whoever picks this up: signal loss is only useful if it is noticed
+quickly, so this wants polling every few seconds. The HTTP helper logs in and out around
+every fetch, which is fine for names but far too heavy for that. It would need a session
+held open and kept alive the way the web interface does, or - much better - a Telnet route.
