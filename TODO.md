@@ -106,6 +106,12 @@ report this at all**, established with a source on input 8 and every other input
 - `RXConnectStatus` is a per-port mask the web interface tests exactly the way we would
   want, but "RX" means an HDBaseT receiver; it is empty on this model, whose
   `LiveView_Suppport` is `0`.
+- `TxConnectStatus`, which does the same job for the other direction, turned out to be
+  the sink side: it tracks what is plugged into the outputs, and the module now publishes
+  it as `output_<n>_sinkactive`.
+- `read` takes no port argument on this firmware. ATEN documents a per-port form that
+  answers "Signal: On/Off", but `read i07` and eight other spellings are all rejected
+  with `Command incorrect`; that form belongs to another series.
 
 Worth revisiting only on a model that advertises `LiveView_Suppport` or is HDBaseT-based,
 where `RXConnectStatus` may carry something real.

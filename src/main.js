@@ -44,6 +44,7 @@ export default class AtenMatrixInstance extends InstanceBase {
 		this.firmwareVersion = undefined
 		this.detectedModel = undefined // model name the matrix reported when logging in
 		this.portNames = { input: {}, output: {}, preset: {} } // names from the web interface
+		this.sinkActive = {} // output number -> whether something is plugged into it
 		this.savedPresets = undefined // profile slots in use, once the web interface says so
 		this.pollTime = 15 // re-poll the full routing status this often, as a safety net on top
 		// of the instant "Switch input X to output Y" notifications the matrix already pushes
@@ -446,6 +447,7 @@ export default class AtenMatrixInstance extends InstanceBase {
 		this.pollOutputs()
 		this.startPolling()
 		this.refreshNames()
+		this.refreshSinkStatus()
 	}
 
 	// Port and profile names live in the web interface rather than the Telnet protocol, so
@@ -460,6 +462,34 @@ export default class AtenMatrixInstance extends InstanceBase {
 			this.applyNames(await web.fetchNames(this.config))
 		} catch (e) {
 			this.log('debug', `Could not read the names from the web interface: ${e.message}`)
+		}
+	}
+
+	// Whether an output has something plugged into it, or undefined while that is unknown -
+	// the module works over Telnet alone, and this only ever comes from the web interface.
+	getSinkActive(output) {
+		return this.sinkActive[output]
+	}
+
+	// The matrix reports which outputs have a sink as one digit per output. It is only in
+	// the web interface, so this shares the polling interval with the routing rather than
+	// having one of its own, and stays quiet when the web interface cannot be reached.
+	async refreshSinkStatus() {
+		if (!this.config.host) return
+
+		try {
+			const active = await web.fetchSinkStatus(this.config)
+			let changed = false
+			active.forEach((isActive, index) => {
+				const output = index + 1
+				if (this.sinkActive[output] === isActive) return
+				this.sinkActive[output] = isActive
+				changed = true
+			})
+
+			if (changed) this.updateVariableValues()
+		} catch (e) {
+			this.log('debug', `Could not read the sink status from the web interface: ${e.message}`)
 		}
 	}
 
@@ -485,7 +515,10 @@ export default class AtenMatrixInstance extends InstanceBase {
 
 	startPolling() {
 		this.stopPolling()
-		this.pollInterval = setInterval(this.pollOutputs.bind(this), this.pollTime * 1000)
+		this.pollInterval = setInterval(() => {
+			this.pollOutputs()
+			this.refreshSinkStatus()
+		}, this.pollTime * 1000)
 	}
 
 	stopPolling() {

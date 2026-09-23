@@ -71,6 +71,7 @@ name containing any of them.
 - `output_<n>_source` – number of the input currently routed to output `n`, updated live whenever the matrix reports a switch and re-read every 15 seconds
 - `input_<n>_name` / `output_<n>_name` – name of the port, as set in the matrix's web interface (falls back to "Input 3"/"Output 3")
 - `preset_<n>_name` – name of preset `n`, for every preset slot the matrix has a profile saved in
+- `output_<n>_sinkactive` – `true` while something is plugged into output `n`, `false` when nothing is, and empty while the web interface has not been reached
 - `model` – model name the matrix reported on login, e.g. `VM0808HB`
 - `last_preset` – number of the last preset recalled via Companion
 - `firmware_version` – software version reported by the matrix

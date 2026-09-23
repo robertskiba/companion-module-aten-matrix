@@ -9,6 +9,7 @@ const PORT_NAMES_PATH = '/data/Annotation/Annotation.xml'
 const SAVE_NAMES_PATH = '/annotation.asp'
 const PROFILES_PATH = '/lib/video_wall.xml'
 const PROFILE_LIST_PATH = '/lib/profile_list.xml'
+const GENERAL_PATH = '/data/general/general.xml'
 const TIMEOUT = 5000
 
 // Characters a VM0808HB refuses in a port name. Established by writing one name after
@@ -124,6 +125,23 @@ export async function fetchNames(config) {
 			presetNames: nameList(profiles, 'R1_ProfileList'),
 			savedPresets: savedPresetsFrom(profileList),
 		}
+	})
+}
+
+// Which outputs have something plugged into them. The web interface reports this as
+// TxConnectStatus on its General page, one digit per output, and draws the red cross next
+// to a port whose digit is "0" - but never says in words what it means. Confirmed by
+// watching the field while a monitor was moved: 00000001 with it on output 8, 00000000
+// unplugged, 00001000 on output 5, each within a second.
+export async function fetchSinkStatus(config) {
+	return withSession(config, async (base, sid) => {
+		const xml = await request(`${base}${GENERAL_PATH}?SID=${sid}&time=${Date.now()}`)
+		const mask = tagContent(xml, 'TxConnectStatus')
+		if (mask === undefined) {
+			throw new Error('the web interface did not report TxConnectStatus')
+		}
+
+		return [...mask.trim()].map((digit) => digit === '1')
 	})
 }
 

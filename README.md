@@ -113,6 +113,7 @@ port the take workflow currently has selected, and the default. In expression mo
 - `output_<n>_source` – input currently routed to output `n`, updated live on every switch and re-read every 15 seconds
 - `input_<n>_name` / `output_<n>_name` – name of the port as set in the matrix's web interface
 - `preset_<n>_name` – name of preset `n`, for every slot the matrix has a profile saved in
+- `output_<n>_sinkactive` – `true` while a display is plugged into output `n`, empty until the web interface answers
 - `model` – model name the matrix reported on login
 - `last_preset` – last preset recalled via Companion
 - `firmware_version` – software version reported by the matrix

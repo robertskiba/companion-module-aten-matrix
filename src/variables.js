@@ -18,6 +18,7 @@ export function getVariableDefinitions(instance) {
 	for (let output = 1; output <= outputs; output++) {
 		variables[`output_${output}_name`] = { name: `Name of output ${output}` }
 		variables[`output_${output}_source`] = { name: `Input routed to output ${output}` }
+		variables[`output_${output}_sinkactive`] = { name: `Whether output ${output} has a display connected` }
 	}
 	// Only the profile slots the matrix has something saved in - an empty slot has no name
 	// worth publishing, and a variable for it would just read as if a profile were there.
@@ -52,6 +53,10 @@ export function getVariableValues(instance) {
 	for (let output = 1; output <= outputs; output++) {
 		values[`output_${output}_name`] = instance.getPortName('output', output)
 		values[`output_${output}_source`] = instance.outputs[output] ?? ''
+		// Empty rather than "false" while the web interface has not been reached yet, so a
+		// button cannot claim a display is missing when the module simply does not know
+		const sink = instance.getSinkActive(output)
+		values[`output_${output}_sinkactive`] = sink === undefined ? '' : String(sink)
 	}
 	for (const preset of instance.getPresetNumbers()) {
 		values[`preset_${preset}_name`] = instance.getPresetName(preset)
