@@ -1,5 +1,17 @@
 # Changelog
 
+## 3.0.1
+
+### Added
+
+- `output_<n>_sinkactive`, a variable that is `true` while something is plugged into output `n` and `false`
+  when nothing is. The matrix never says this in words - its web interface turns the same information into a red
+  cross on the General page - so it is read from there, polled every 2 seconds on a session the module keeps
+  open. While the web interface has not answered the variable is empty rather than `false`, so a button cannot
+  claim a display is missing when the module simply does not know.
+- **Display connected**, the matching feedback, for colouring a button by that state without writing an
+  expression.
+
 ## 3.0.0
 
 ### Breaking
@@ -42,6 +54,10 @@
   lockout ("Login locked. Please wait for 5 minutes").
 - A rejected username or password stops the retries rather than hammering the matrix until it locks the account
   out.
+- An input feeding several outputs is read correctly. The matrix answers `RO` with every output on one line,
+  and only the first was taken.
+- Lines are split at the CR/LF the matrix sends without leaving the newline on the front of the next one.
+- Asymmetric matrices, such as the 8x9 VM6809H, are no longer treated as square.
 
 ## 2.0.2 and earlier
 
