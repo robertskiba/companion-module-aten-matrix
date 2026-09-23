@@ -109,6 +109,13 @@ report this at all**, established with a source on input 8 and every other input
 - `TxConnectStatus`, which does the same job for the other direction, turned out to be
   the sink side: it tracks what is plugged into the outputs, and the module now publishes
   it as `output_<n>_sinkactive`.
+- It cannot be inferred from the output side either. With a monitor on output 5, switching
+  that output from an input carrying a source to an empty one changed nothing at all:
+  `HDCPinput`, `HDCPoutput`, `DisplayHDCP`, `RXHDCPSupport`, `DISPLAY_IDSTR`,
+  `TxConnectStatus` and the OSD/CEC strings were identical before and after. The one
+  caveat is that the test source was not HDCP-encrypted; an encrypted one might move the
+  HDCP fields, but that would only ever detect HDCP sources, which is no basis for an
+  automation.
 - `read` takes no port argument on this firmware. ATEN documents a per-port form that
   answers "Signal: On/Off", but `read i07` and eight other spellings are all rejected
   with `Command incorrect`; that form belongs to another series.
