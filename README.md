@@ -106,6 +106,7 @@ port the take workflow currently has selected, and the default. In expression mo
 - **Route** – true if the given input is routed to the given output (both default to the selected source/destination)
 - **Source selected** / **Destination selected** – true if the given input/output is selected for a take
 - **Preset recalled** – true if the given preset was the last one recalled via Companion
+- **Display connected** – true while something is plugged into the given output
 - **Connected** – true while the module has an active, logged-in Telnet session with the matrix
 
 **Variables**
@@ -114,6 +115,12 @@ port the take workflow currently has selected, and the default. In expression mo
 - `input_<n>_name` / `output_<n>_name` – name of the port as set in the matrix's web interface
 - `preset_<n>_name` – name of preset `n`, for every slot the matrix has a profile saved in
 - `output_<n>_sinkactive` – `true` while a display is plugged into output `n`, empty until the web interface answers
+
+The matrix never says in words which outputs have a display, but its web interface has the information: one
+digit per output, which its General page turns into a red cross. The module polls that every 2 seconds on a
+session it keeps open, so one read costs a single request of about 60 ms, and publishes it as the variable and
+feedback above.
+
 - `model` – model name the matrix reported on login
 - `last_preset` – last preset recalled via Companion
 - `firmware_version` – software version reported by the matrix

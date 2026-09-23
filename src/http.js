@@ -63,18 +63,55 @@ function nameList(xml, tag) {
 	return raw === undefined ? [] : raw.split(',')
 }
 
+// The sink status is polled every couple of seconds, which is far too often to log in and
+// out around each read, so that one session is kept. The matrix answers a request carrying
+// a session it has forgotten with an HTML error page rather than an error status, so an
+// expired session shows up as the work throwing - and is retried once on a fresh login.
+const sessions = new Map()
+
+async function withKeptSession(config, work) {
+	const base = `http://${config.host}`
+
+	const kept = sessions.get(config.host)
+	if (kept !== undefined) {
+		try {
+			return await work(base, kept)
+		} catch {
+			sessions.delete(config.host)
+		}
+	}
+
+	const sid = await login(config)
+	sessions.set(config.host, sid)
+	return work(base, sid)
+}
+
+// Hands a kept session back, so it does not sit there until the matrix times it out
+export async function closeSession({ host }) {
+	const sid = sessions.get(host)
+	if (sid === undefined) return
+
+	sessions.delete(host)
+	await request(`http://${host}${LOGOUT_PATH}?SID=${sid}`).catch(() => {})
+}
+
 // Logs into the web interface, runs the given work with the session, and logs out again -
 // the matrix only keeps a handful of sessions and they linger for a while, so an abandoned
 // one eventually locks everybody out of the web interface.
-async function withSession({ host, user, pass }, work) {
-	const base = `http://${host}`
+async function login({ host, user, pass }) {
 	const credentials = new URLSearchParams({ login_username: user, login_password: pass })
+	const loginPage = await request(`http://${host}` + LOGIN_PATH, { method: 'POST', body: credentials })
 
-	const loginPage = await request(base + LOGIN_PATH, { method: 'POST', body: credentials })
 	const sid = /SID=([A-Za-z0-9]+)/.exec(loginPage)?.[1]
 	if (sid === undefined) {
 		throw new Error('the web interface did not hand out a session id')
 	}
+	return sid
+}
+
+async function withSession(config, work) {
+	const base = `http://${config.host}`
+	const sid = await login(config)
 
 	try {
 		return await work(base, sid)
@@ -134,7 +171,7 @@ export async function fetchNames(config) {
 // watching the field while a monitor was moved: 00000001 with it on output 8, 00000000
 // unplugged, 00001000 on output 5, each within a second.
 export async function fetchSinkStatus(config) {
-	return withSession(config, async (base, sid) => {
+	return withKeptSession(config, async (base, sid) => {
 		const xml = await request(`${base}${GENERAL_PATH}?SID=${sid}&time=${Date.now()}`)
 		const mask = tagContent(xml, 'TxConnectStatus')
 		if (mask === undefined) {

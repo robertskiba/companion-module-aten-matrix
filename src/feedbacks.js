@@ -46,6 +46,21 @@ export function getFeedbacks(instance) {
 				return instance.state.selectedDestination === Number(feedback.options.port)
 			},
 		},
+		sinkConnected: {
+			name: 'Display connected',
+			type: 'boolean',
+			description:
+				'Shows whether anything is plugged into the given output. This comes from the web interface, so it stays ' +
+				'false while that cannot be reached.',
+			defaultStyle: {
+				color: combineRgb(255, 255, 255),
+				bgcolor: combineRgb(0, 102, 0),
+			},
+			options: [outputField(instance, { id: 'port' })],
+			callback: (feedback) => {
+				return instance.getSinkActive(Number(feedback.options.port)) === true
+			},
+		},
 		presetRecalled: {
 			name: 'Preset recalled',
 			type: 'boolean',

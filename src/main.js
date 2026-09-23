@@ -49,6 +49,9 @@ export default class AtenMatrixInstance extends InstanceBase {
 		this.pollTime = 15 // re-poll the full routing status this often, as a safety net on top
 		// of the instant "Switch input X to output Y" notifications the matrix already pushes
 		this.pollInterval = null
+		this.sinkPollTime = 2 // the sink status is a separate, much faster poll: it is what an
+		// automation reacts to, and one read costs a single request on a session already open
+		this.sinkPollInterval = null
 
 		// The matrix terminates the session after a handful of rejected logins (3 on the
 		// VM0808HB) and locks logins out for several minutes after too many connection/login
@@ -196,6 +199,7 @@ export default class AtenMatrixInstance extends InstanceBase {
 
 		this.stopPolling()
 		this.clearReconnectTimer()
+		await web.closeSession(this.config).catch(() => {})
 
 		this.log('debug', `DESTROY ${this.id}`)
 	}
@@ -487,7 +491,10 @@ export default class AtenMatrixInstance extends InstanceBase {
 				changed = true
 			})
 
-			if (changed) this.updateVariableValues()
+			if (changed) {
+				this.updateVariableValues()
+				this.checkFeedbacks('sinkConnected')
+			}
 		} catch (e) {
 			this.log('debug', `Could not read the sink status from the web interface: ${e.message}`)
 		}
@@ -515,16 +522,19 @@ export default class AtenMatrixInstance extends InstanceBase {
 
 	startPolling() {
 		this.stopPolling()
-		this.pollInterval = setInterval(() => {
-			this.pollOutputs()
-			this.refreshSinkStatus()
-		}, this.pollTime * 1000)
+		this.pollInterval = setInterval(this.pollOutputs.bind(this), this.pollTime * 1000)
+		this.sinkPollInterval = setInterval(this.refreshSinkStatus.bind(this), this.sinkPollTime * 1000)
 	}
 
 	stopPolling() {
 		if (this.pollInterval) {
 			clearInterval(this.pollInterval)
 			this.pollInterval = null
+		}
+
+		if (this.sinkPollInterval !== null) {
+			clearInterval(this.sinkPollInterval)
+			this.sinkPollInterval = null
 		}
 	}
 
